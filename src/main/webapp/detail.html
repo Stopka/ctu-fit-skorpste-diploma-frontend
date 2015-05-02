@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="detail">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Searcher</title>
+
+    <link href="images/icon.png" rel="shortcut icon">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/general.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <script src="js/jquery.ba-hashchange.min.js"></script>
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-route.min.js"></script>
+    <script src="js/ng/detail.js"></script>
+    <script>
+        $(window).bind('hashchange', function() {
+            window.location.reload();
+        });
+    </script>
+</head>
+<body ng-controller="DetailController as detail">
+<header class="navbar navbar-default">
+    <nav class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+                <img alt="Searcher" src="images/icon.svg">
+                <span>Searcher</span>
+            </a>
+        </div>
+
+        <div class="navbar-text nooverflow">
+            <span title="{{detail.form.id}}"><i class="fa fa-file-text"></i>&nbsp;{{detail.form.id}}</span>
+        </div>
+
+    </nav>
+    <!-- /.container-fluid -->
+</header>
+<div class="alert alert-info" ng-show="detail.loading"><i class="fa fa-spinner fa-spin"></i>&nbsp;Loading data...</div>
+<div class="alert alert-danger" ng-show="detail.doc===null&&!detail.loading"><i class="fa fa-exclamation-triangle"></i>&nbsp;No such document found!</div>
+<div id="content" class="row" ng-hide="detail.doc===null">
+    <main class="col-sm-8 col-md-8 col-lg-8">
+        <h2><i class="fa fa-bullseye"></i>&nbsp;Document detail</h2>
+
+            <table class="panel-body table">
+                <tr>
+                    <th><i class="fa fa-pencil"></i>&nbsp;Last modified:</th>
+                    <td>{{detail.doc.edited|date:'yyyy-MM-dd HH:mm'}}</td>
+                    <th><i class="fa fa-tag"></i>&nbsp;Filename:</th>
+                    <td>{{detail.doc.name}}</td>
+                </tr>
+
+            </table>
+            <pre ng-repeat="text in detail.highlight.text" ng-bind-html="text|escapeHtml"></pre>
+
+    </main>
+
+    <aside class="col-sm-4 col-md-4 col-lg-4">
+        <div class="well well-sm similar">
+            <h2><i class="fa fa-files-o"></i>&nbsp;Similar</h2>
+            <section class="alert alert-warning" ng-show="detail.similars.docs.length==0">
+                <i class="fa fa-exclamation-circle"></i><span>No similar documents found.</span>
+            </section>
+            <section class="panel panel-default" ng-repeat="doc in detail.similars.docs">
+                <div class="panel-heading nooverflow"><a href="{{detail.getDocLink(doc)}}" title="{{doc.id}}"><i class="fa fa-file-text"></i>&nbsp;{{doc.id}}</a></div>
+                <table class="panel-body table table-condensed">
+                    <tr class="active">
+                        <th title="Last modified"><i class="fa fa-pencil"></i></th>
+                        <td title="Last modified">{{doc.edited|date:'yyyy-MM-dd HH:mm'}}</td>
+                        <th title="Score"><i class="fa fa-star"></i></th>
+                        <td title="Score">{{doc.score*100|number:1}}%</td>
+                    </tr>
+                    <tr class="active">
+                        <th title="Filename"><i class="fa fa-tag"></i></th>
+                        <td title="Filename" colspan="3">{{doc.name}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" >{{doc.text|limitTo:160}}…</td>
+                    </tr>
+                </table>
+            </section>
+        </div>
+    </aside>
+</div>
+<footer>
+    <div>Bc. Štěpán Škorpil 2015</div>
+    <img src="images/fit_logo.jpg" alt="fit logo" />
+</footer>
+</body>
+</html>

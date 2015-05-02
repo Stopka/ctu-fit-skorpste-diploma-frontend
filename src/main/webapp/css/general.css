@@ -1,0 +1,91 @@
+.navbar-brand img{
+	display: inline-block;
+}
+@media (min-width: 768px){
+	#search{
+		width: calc(100% - 10em);
+	}
+
+	#search .form-group{
+		width: 100%;
+	}
+
+	.query{
+		width: calc(100% - 25em);
+	}
+
+	.query .input-group-addon{
+		width: 20px!important;
+	}
+
+	#search .input-group-btn{
+		width: 1%!important;
+	}
+	
+}
+
+#content{
+	margin: 3px;
+}
+
+.clusters ul{
+	margin-left: 20px;
+}
+
+.clusters span{
+	margin-right: 5px;
+	display: inline-block;
+}
+
+mark{
+	color: white;
+	background-color: #204d74;
+}
+
+.nooverflow{
+	overflow: hidden;
+}
+
+footer{
+	text-align: center;
+	border-top: 1px solid #ddd;
+	margin: 15px 15px 0 15px;
+	padding: 5px;
+}
+
+main nav{
+	text-align: center;
+}
+
+.clusters .label span{
+	display: inline-block;
+	margin: 0 3px;
+}
+
+.clusters .label{
+	display: inline-block;
+	margin: 0 5px;
+}
+
+.clusters a:hover span{
+	text-decoration: underline!important;
+}
+
+.clusters .active>a{
+	color: #9400c4;
+	font-weight: bold;
+}
+
+.clusters .active>a:hover{
+	color: #50006c;
+	font-weight: bold;
+}
+
+.similar th{
+	width: 20px;
+	text-align: center;
+}
+
+.panel-heading{
+    white-space: nowrap;
+}

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="search">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Searcher</title>
+
+    <link href="images/icon.png" rel="shortcut icon">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/bootstrap-theme.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/general.css" rel="stylesheet">
+
+    <script src="js/jquery.min.js"></script>
+    <!--<script src="js/jquery.ba-hashchange.min.js"></script>-->
+    <script src="js/angular.min.js"></script>
+    <script src="js/angular-route.min.js"></script>
+    <script src="js/ng/search.js"></script>
+    <!--<script>
+        $(window).bind('hashchange', function() {
+            window.location.reload();
+        });
+    </script>-->
+</head>
+<body ng-controller="SearcherController as searcher">
+<header class="navbar navbar-default">
+    <nav class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <a class="navbar-brand" href="/">
+                <img alt="Searcher" src="images/icon.svg">
+                <span>Searcher</span>
+            </a>
+        </div>
+
+
+        <form id="search" class="navbar-form navbar-left" role="search" ng-submit="searcher.search(true)">
+            <div class="form-group">
+                <div class="input-group collection">
+                    <span class="input-group-addon"><i class="fa fa-database"></i></span>
+                    <select name="collection" class="form-control" ng-model="searcher.form.core">
+                        <option ng-repeat="core in searcher.cores" value="{{core.name}}" ng-selected="searcher.form.core==core.name">{{core.name}}</option>
+                    </select>
+                </div>
+
+                <div class="input-group query">
+                    <span class="input-group-addon"><i class="fa fa-search"></i></span>
+                    <input type="search" name="query" class="form-control" placeholder="Search" ng-model="searcher.form.query">
+                    <span class="input-group-btn">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </span>
+                </div>
+
+                <button type="button" class="btn btn-default btn-xs" ng-click="searcher.toggleAdvanced()">
+                    <i class="fa fa-caret-square-o-down" ng-if="!searcher.form.advanced.enabled"></i>
+                    <i class="fa fa-caret-square-o-up" ng-if="searcher.form.advanced.enabled"></i>&nbsp;Advanced</button>
+            </div>
+            <fieldset class="advanced" ng-class="{hide: !searcher.form.advanced.enabled}">
+                <legend>Advanced options</legend>
+                <div class="form-group">
+                    <label for="clustering">Clustering engine</label>
+                    <select id="clustering" name="clustering" class="form-control"  ng-model="searcher.form.advanced.clustering.engine">
+                        <option value="lingo">Lingo</option>
+                        <option value="stc">STC</option>
+                        <option value="kmeans">Bisecting K-Means</option>
+                    </select>
+                </div>
+            </fieldset>
+        </form>
+    </nav>
+    <!-- /.container-fluid -->
+</header>
+<div class="alert alert-info" ng-show="searcher.loading"><i class="fa fa-spinner fa-spin"></i>&nbsp;Loading data...</div>
+<div id="content" class="row" ng-show="searcher.loading==false">
+    <aside class="col-sm-3 col-md-3 col-lg-3 clusters">
+        <div class="well well-sm">
+            <h2><i class="fa fa-folder-open-o"></i>&nbsp;Clusters</h2>
+            <ul class="fa-ul">
+                <li ng-class="{active: searcher.clusters.selected}" >
+                    <a href="" ng-click="searcher.selectCluster(-1)">
+                        <i class="fa-li fa" ng-class="{'fa-square': !searcher.clusters.selected,'fa-check-square':searcher.clusters.selected}"></i>
+                        <span>All</span>
+                    </a>
+                    <small class="badge">{{searcher.response.numFound}}</small>
+                    <ul class="fa-ul">
+                        <li ng-repeat="(id,cluster) in searcher.clusters.list" ng-class="{active: cluster.selected}">
+                            <a href="" ng-click="searcher.selectCluster(id)" title="Score: {{cluster.score*100|number:1}}%">
+                                <i class="fa-li fa" ng-class="{'fa-square':!cluster.selected,'fa-check-square':cluster.selected}"></i>
+                                <span ng-repeat="label in cluster.labels">{{label}}</span>
+                            </a>
+                            <small class="badge">{{cluster.docs.length|number}}</small>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </aside>
+
+    <main class="col-sm-9 col-md-9 col-lg-9">
+        <h2><i class="fa fa-list"></i>&nbsp;Results</h2>
+        <section class="panel panel-default" ng-repeat="doc in searcher.results">
+            <div class="panel-heading nooverflow" title="{{doc.id}}"><a href="{{searcher.getDocLink(doc)}}"><i class="fa fa-file-text"></i>&nbsp;{{doc.id}}</a></div>
+            <table class="panel-body table table-condensed">
+                <tr class="active">
+                    <th><i class="fa fa-pencil"></i>&nbsp;Last modified:</th>
+                    <td>{{doc.edited|date:'yyyy-MM-dd HH:mm'}}</td>
+                    <th><i class="fa fa-tag"></i>&nbsp;Filename:</th>
+                    <td>{{doc.name}}</td>
+                </tr>
+                <tr class="active">
+                    <th><i class="fa fa-folder"></i>&nbsp;Clusters:</th>
+                    <td class="clusters">
+                        <span class="label" ng-repeat="cluster in searcher.getDocClusters(doc.id)" ng-class="{'label-primary': (cluster.selected), 'label-default': (!cluster.selected)}">
+                            <span ng-repeat="label in cluster.labels">{{label}}</span>
+                        </span>
+                    </td>
+                    <th><i class="fa fa-star"></i>&nbsp;Score:</th>
+                    <td>{{doc.score*100|number:1}}%</td>
+                </tr>
+                <tr>
+                    <td colspan="4" >
+                        <div ng-repeat="text in searcher.highlights[doc.id].text">
+                            <span ng-bind-html="text|escapeHtml"></span>…
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </section>
+        <section class="alert alert-warning" ng-show="!searcher.results.length">
+            <p class="panel-body"><i class="fa fa-exclamation-circle"></i><strong>No documents found.</strong></p>
+        </section>
+        <nav>
+            <ul class="pagination">
+                <li ng-class="{disabled: (searcher.pager.page<=0)}"><a href="" title="First" ng-click="(searcher.pager.page>0)&&searcher.pager.set('--')"><i class="fa fa-angle-double-left"></i></a></li>
+                <li ng-class="{disabled: (searcher.pager.page<=0)}"><a href="" title="Previous" ng-click="(searcher.pager.page>0)&&searcher.pager.set('-')"><i class="fa fa-angle-left"></i></a></li>
+                <li ng-repeat="pg in searcher.pager.get()" ng-class="{active: (searcher.pager.page==pg)}"><a href="" ng-click="(searcher.pager.page!=pg)&&searcher.pager.set(pg)">{{pg+1}}</a></li>
+                <li ng-class="{disabled: (searcher.pager.page>=searcher.pager.getPagesCount()-1)}"><a href="" title="Next" ng-click="(searcher.pager.page<searcher.pager.getPagesCount()-1)&&searcher.pager.set('+')"><i class="fa fa-angle-right"></i></a></li>
+                <li ng-class="{disabled: (searcher.pager.page>=searcher.pager.getPagesCount()-1)}"><a href="" title="Last" ng-click="(searcher.pager.page<searcher.pager.getPagesCount()-1)&&searcher.pager.set('++')"><i class="fa fa-angle-double-right"></i></a></li>
+            </ul>
+        </nav>
+    </main>
+</div>
+<footer>
+    <div>Bc. Štěpán Škorpil 2015</div>
+    <img src="images/fit_logo.jpg" alt="fit logo" />
+</footer>
+</body>
+</html>
