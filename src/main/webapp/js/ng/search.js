@@ -73,23 +73,26 @@
             //+ -: increments or decrements; ++ -- last or first
             set: function(val){
                 max=this.getPagesCount();
+                if(val==='-'){
+                    this.page--;
+                }
                 if(val==='+'){
                     this.page++;
+                }
+                if(typeof(val) == "number"){
+                    this.page=val;
+                }
+                if(this.page<0){
+                    val='--';
+                }
+                if(this.page>=max){
+                    val='++';
                 }
                 if(val==='++'){
                     this.page=max-1;
                 }
                 if(val==='--'){
                     this.page=0;
-                }
-                if(typeof(val) == "number"){
-                    this.page=val;
-                }
-                if(this.page<0){
-                    this.page=0;
-                }
-                if(this.page>=max){
-                    this.page=max-1;
                 }
                 searcher.search();
             }
