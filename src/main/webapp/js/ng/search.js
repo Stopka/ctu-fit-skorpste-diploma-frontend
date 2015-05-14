@@ -167,7 +167,7 @@
             form = searcher.form;
             params='';
             if(form.advanced.enabled){
-                params+='clustering.results='+(form.advanced.clustering.engine?"true":"false")+'&clustering.engine='+form.advanced.clustering.engine;
+                params+='&clustering.results='+(form.advanced.clustering.engine?"true":"false")+'&clustering.engine='+form.advanced.clustering.engine;
             }
             $http.get(searcher.form.solrhost+"/"+form.core+'/searcher?wt=json'+searcher.pager.getQuery()+'&q='+form.query+params).success(function (data) {
                 searcher.response = data.response;
