@@ -19,12 +19,13 @@
 
         //form input variables
         searcher.form = {
+            solrhost:"http://localhost:8080/solr",
             core: "",
             query: "",
             advanced: {
                 enabled: false,
                 clustering: {
-                    engine: 'lingo'
+                    engine: ''
                 }
             }
         };
@@ -46,7 +47,7 @@
 
         //holds paging info
         searcher.pager={
-            rows: 50,
+            rows: 30,
             page: 0,
 
             //counts number of pages of search results
@@ -95,7 +96,7 @@
         };
 
         //service to load availible cores
-        $http.get('/solr/admin/cores?wt=json').success(function (data) {
+        $http.get(searcher.form.solrhost+'/admin/cores?wt=json').success(function (data) {
             searcher.cores = data.status;
             searcher.form.core = data.defaultCoreName;
             searcher.parseLocation();
@@ -163,12 +164,12 @@
             form = searcher.form;
             params='';
             if(form.advanced.enabled){
-                params+='&clustering.engine='+form.advanced.clustering.engine;
+                params+='clustering.results='+(form.advanced.clustering.engine?"true":"false")+'&clustering.engine='+form.advanced.clustering.engine;
             }
-            $http.get('/solr/'+form.core+'/searcher?wt=json'+searcher.pager.getQuery()+'&q='+form.query+params).success(function (data) {
+            $http.get(searcher.form.solrhost+"/"+form.core+'/searcher?wt=json'+searcher.pager.getQuery()+'&q='+form.query+params).success(function (data) {
                 searcher.response = data.response;
                 searcher.highlights = data.highlighting
-                searcher.clusters.list = data.clusters;
+                searcher.clusters.list = data.clusters?data.clusters:[];
                 searcher.selectCluster(-1);
                 searcher.loading=false;
             });
