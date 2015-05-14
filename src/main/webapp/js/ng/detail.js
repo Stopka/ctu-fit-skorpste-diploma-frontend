@@ -55,7 +55,7 @@
             form = detail.form;
             params="";
             detail.loading=true;
-            $http.get('/solr/'+encodeURI(form.core)+'/detail?wt=json&q='+encodeURI('id:"'+form.id+'" '+form.query)).success(function (data) {
+            $http.get('/solr/'+encodeURI(form.core)+'/detail?wt=json&q='+encodeURI('id:"'+form.id.replace(/\\/g,"\\\\")+'" '+form.query)).success(function (data) {
                 if(typeof data.response.docs[0] !== 'undefined'){
                     detail.doc = data.response.docs[0];
                 }
