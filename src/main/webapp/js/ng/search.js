@@ -19,7 +19,7 @@
 
         //form input variables
         searcher.form = {
-            solrhost:"http://localhost:8080/solr",
+            solrhost:"/solr",
             core: "",
             query: "",
             advanced: {
@@ -108,7 +108,7 @@
 
         //creates link to open document detail
         searcher.getDocLink=function(doc){
-            return 'detail.html#?id='+doc.id+'&core='+searcher.form.core+'&query='+searcher.form.query;
+            return 'detail.html#?id='+encodeURI(doc.id)+'&core='+encodeURI(searcher.form.core)+'&query='+encodeURI(searcher.form.query);
         };
 
         //parses location and sets state variables
@@ -167,9 +167,9 @@
             form = searcher.form;
             params='';
             if(form.advanced.enabled){
-                params+='&clustering.results='+(form.advanced.clustering.engine?"true":"false")+'&clustering.engine='+form.advanced.clustering.engine;
+                params+='&clustering.results='+(form.advanced.clustering.engine?"true":"false")+'&clustering.engine='+encodeURI(form.advanced.clustering.engine);
             }
-            $http.get(searcher.form.solrhost+"/"+form.core+'/searcher?wt=json'+searcher.pager.getQuery()+'&q='+form.query+params).success(function (data) {
+            $http.get(searcher.form.solrhost+"/"+encodeURI(form.core)+'/searcher?wt=json'+searcher.pager.getQuery()+'&q='+encodeURI(form.query)+params).success(function (data) {
                 searcher.response = data.response;
                 searcher.highlights = data.highlighting
                 searcher.clusters.list = data.clusters?data.clusters:[];
